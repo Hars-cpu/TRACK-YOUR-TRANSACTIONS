@@ -7,17 +7,11 @@ import incomeRouter from './routes/incomeRoutes.js';
 import expenseRouter from './routes/expenseRoutes.js';
 import dashboardRouter from './routes/dashboardRoutes.js';
 const app=express()
-const port=3000
+const port=process.env.PORT||3000
 
 const corsOptions={
     origin:"*",
-    
-    
-  
-
-
-    
-}
+    }
 
 app.use(cors(corsOptions));
 app.use(express.json());
