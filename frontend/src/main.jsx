@@ -8,7 +8,7 @@ import Dashbar from './components/dashbar.jsx'
 import LoginPage from './components/login.jsx'
 import SignUp from './components/signup.jsx'
 import Exporting from './components/exporting.jsx'
-export const backendUrl='http://localhost:3000';
+export const backendUrl='https://track-your-transactions-backend.onrender.com';
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <App></App>
