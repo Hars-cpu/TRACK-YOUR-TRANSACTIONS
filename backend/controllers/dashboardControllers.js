@@ -1,6 +1,7 @@
 import incomeModel from "../models/incomeModel.js";
 import expenseModel from "../models/expenseModel.js";
 
+
 export const getDashboardData=async(req,res)=>{
     const userId=req.user._id;
     const now=new Date();
@@ -33,10 +34,11 @@ export const getDashboardData=async(req,res)=>{
 
             const spendByCategory={};
             for(const expense of expenses){
-                if(spendByCategory[expense.category||"others"]){
-                    spendByCategory[expense.category||"others"]+=Number(expense.amount||0);
+               
+                if(spendByCategory[expense.category||"OTHERS"]){
+                    spendByCategory[expense.category||"OTHERS"]+=Number(expense.amount||0);
                 }else{
-                    spendByCategory[expense.category||"others"]=Number(expense.amount||0);
+                    spendByCategory[expense.category||"OTHERS"]=Number(expense.amount||0);
                 }
             }
 

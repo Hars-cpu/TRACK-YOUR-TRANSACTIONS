@@ -1,6 +1,10 @@
 import Expense from "../models/expenseModel.js";
 import getDateRange from "../utils/dateRange.js";
 import xlsx from 'xlsx';
+function normalizeWord(word){
+    if(!word)return "OTHERS";
+    return word.replace(/[\s-]+/g,'').toUpperCase();
+}
 export const addExpense=async(req,res)=>{
     const userId=req.user._id;
     const {description,amount,category,date}=req.body;
@@ -8,7 +12,7 @@ export const addExpense=async(req,res)=>{
         const expense=await Expense.create({
             description,
             amount,
-            category,
+            category: normalizeWord(category),
             date,
             userId,
         })
@@ -49,7 +53,7 @@ export const updateExpense=async(req,res)=>{
         }
         expense.description=description;
         expense.amount=amount;
-        expense.category=category;
+        expense.category=normalizeWord(category);
         expense.date=date;
         await expense.save();
         res.status(200).json({
@@ -86,7 +90,7 @@ export const deleteExpense=async(req,res)=>{
 export const getExpenseOverview=async(req,res)=>{
     const userId=req.user._id;
     try{
-         const {range="monthly"}=req.query;
+         const {range="monthly"}= req.query;
          const {start,end}=getDateRange(range);
             const expenses=await Expense.find({
                 userId,
@@ -102,6 +106,7 @@ export const getExpenseOverview=async(req,res)=>{
             const recentTransactions=expenses.slice(0,9);
             res.status(200).json({
                 message:'Expense overview fetched successfully',
+                expense:expenses,
                 totalExpense,
                 averageExpense,
                 numberOfTransactions,
@@ -118,7 +123,14 @@ export const getExpenseOverview=async(req,res)=>{
 export const getExcelFile=async(req,res)=>{
     const userId=req.user._id;
     try{
-        const expenses=await Expense.find({userId}).sort({date:-1});
+         const {range="monthly"}= req.query;
+         const {start,end}=getDateRange(range);
+            const expenses=await Expense.find({
+                userId,
+                date:{
+                    $gte:start,$lte:end,
+                },
+            }).sort({date:-1});
         const plainData=expenses.map(expense=>({
             Description:expense.description,
             Amount:expense.amount,
@@ -128,10 +140,11 @@ export const getExcelFile=async(req,res)=>{
         const worksheet=xlsx.utils.json_to_sheet(plainData);
         const workbook=xlsx.utils.book_new();
         xlsx.utils.book_append_sheet(workbook,worksheet,'Expenses');
-        const buffer=xlsx.writeFile(workbook,{type:'buffer',bookType:'xlsx'});
+        const buffer=xlsx.write(workbook,({type:'buffer',bookType:'xlsx'}));
         res.setHeader('Content-Disposition','attachment; filename=expenses.xlsx');
         res.setHeader('Content-Type','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.send(buffer);
+       
     }catch(error){
         console.log("Error in exporting expense:", error.message);
         res.status(500).json({message:error.message});

@@ -1,6 +1,34 @@
-import React from "react";
-
+import React, { use } from "react";
+import { backendUrl } from "../main.jsx";
+import Axios from "axios";
+import { useNavigate } from "react-router-dom";
+import {useEffect} from "react";
 export default function LoginPage() {
+    const [email,setEmail]=React.useState("");
+    const [password,setPassword]=React.useState("");
+    const navigate=useNavigate();
+
+    
+  const onLogin=async()=>{
+    try{
+      console.log("Email:", email, "Password:", password, "User:", );
+         const response=await Axios.post(`${backendUrl}/api/user/login`,{
+           email,
+           password
+         });
+         
+         localStorage.setItem("token", response.data.token);
+         localStorage.setItem("user", JSON.stringify(response.data.user));
+          alert("Login successful");
+          setTimeout(()=>{
+            navigate("/");
+          },1000);
+        
+    }catch(error){
+      console.log("Login failure:", error.message);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#e9e9eb] flex items-center justify-center p-6">
       <div className="w-full max-w-6xl bg-white rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] grid grid-cols-1 md:grid-cols-2 overflow-hidden">
@@ -24,14 +52,20 @@ export default function LoginPage() {
           </p>
 
           {/* Email */}
-          <input
+          <input onChange={(e)=>{
+             setEmail(e.target.value);
+          }} 
+          value={email}
             type="email"
             placeholder="harsh@gmail.com"
             className="w-full h-[48px] px-4 mb-4 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
 
           {/* Password */}
-          <input
+          <input onChange={(e)=>{
+             setPassword(e.target.value);
+          }}
+          value={password}
             type="password"
             placeholder="password123"
             className="w-full h-[48px] px-4 mb-4 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -54,14 +88,16 @@ export default function LoginPage() {
           </div>
 
           {/* Button */}
-          <button className="w-[120px] h-[44px] rounded-lg text-white text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-500 shadow-md hover:opacity-70 transition">
+          <button onClick={()=>{
+            onLogin();
+          }} className="w-[120px] h-[44px] rounded-lg text-white text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-500 shadow-md hover:opacity-70 transition">
             Sign In
           </button>
 
           {/* Footer */}
           <p className="text-[12px] text-gray-400 mt-10">
             Don’t have an account?{" "}
-            <span className="text-purple-600 cursor-pointer">Sign Up</span>
+            <span onClick={() => navigate("/signup")} className="text-purple-600 cursor-pointer">Sign Up</span>
           </p>
         </div>
 
