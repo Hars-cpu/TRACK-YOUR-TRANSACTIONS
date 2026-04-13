@@ -23,7 +23,7 @@ const SignUp = () => {
           },2000);
          
     }catch(error){
-      alert("Signup failed", error.response.data.message);
+      alert(error.response.data.message);
       console.error("Signup failed:", error.message);
     }
   }
